@@ -1,0 +1,36 @@
+<div class="container mt-3">
+    <div class="control-panel">
+        <div class="row">
+            <div class="col">
+                <div class="mb-3">
+                    <label for="maxPlayersInput" class="form-label">Max Players</label>
+                    <input type="number" class="form-control" id="maxPlayersInput" [(ngModel)]="maxPlayers"
+                        name="maxPlayers">
+                </div>
+                <div class="mb-3">
+                    <label for="maxRoundInput" class="form-label">Max Rounds</label>
+                    <input type="number" class="form-control" id="maxRoundInput" [(ngModel)]="maxRounds"
+                        name="maxRounds">
+                </div>
+                <button class="btn btn-primary my-2" (click)="createGame()">Create Game</button>
+                <button class="btn btn-info my-2" (click)="updateMaxRounds()">Update Max Rounds</button>
+            </div>
+            <div class="col">
+                <div class="mb-3">
+                    <label for="roundDurationInput" class="form-label">Round Duration (ms)</label>
+                    <input type="number" class="form-control" id="roundDurationInput" [(ngModel)]="roundDuration"
+                        name="roundDuration">
+                </div>
+                <button class="btn btn-info my-2" (click)="updateRoundTime()">Update Round Duration</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <button class="btn btn-success my-2" (click)="startGame()">Start Game</button>
+            </div>
+            <div class="col">
+                <button class="btn btn-danger my-2" (click)="endGame()">End Game</button>
+            </div>
+        </div>
+    </div>
+</div>

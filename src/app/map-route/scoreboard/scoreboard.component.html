@@ -1,0 +1,61 @@
+<div class="container my-5" *ngIf="scoreboardData">
+    <h2 class="mb-4 text-secondary">Scoreboard</h2>
+    <p><strong>Game ID: </strong>{{scoreboardData.gameId}}</p>
+    <p><strong>Game Status:</strong> {{scoreboardData.gameStatus}}</p>
+    <p><strong>Round Number:</strong> {{scoreboardData.roundNumber}}</p>
+    <table class="table table-responsive-sm table-light table-striped table-bordered table-hover shadow-sm">
+        <thead class="bg-info text-white">
+            <tr>
+                <th>Player Name</th>
+                <th>Total Score</th>
+                <th>Fighting Score</th>
+                <th>Mining Score</th>
+                <th>Trading Score</th>
+                <th>Traveling Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let entry of sortedEntries">
+                <td>{{ entry.player.name }}</td>
+                <td>{{ entry.totalScore }}</td>
+                <td>{{ entry.fightingScore }}</td>
+                <td>{{ entry.miningScore }}</td>
+                <td>{{ entry.tradingScore }}</td>
+                <td>{{ entry.travelingScore }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="container my-5">
+    <h2 class="mb-4 text-secondary">Achievements</h2>
+    <table class="table table-responsive-sm table-light table-striped table-bordered table-hover shadow-sm">
+        <thead class="bg-success text-white">
+            <tr>
+                <th>Player</th>
+                <th>Achievement</th>
+                <th>Category</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let player of scoreboardData?.scoreboardEntriesWithAchievements">
+                <td>{{ player.player.name }}</td>
+                <td>
+                    <ng-container *ngFor="let achievement of player.achievements">
+                        <span *ngIf="achievement.gameId === scoreboardData?.gameId">
+                            <img [src]="achievement.achievement.image" alt="{{ achievement.achievement.name }}" class="img-fluid img-thumbnail me-2" style="width: 30px; height: 30px;">
+                            {{ achievement.achievement.name }}
+                        </span>
+                    </ng-container>
+                </td>
+                <td>
+                    <ng-container *ngFor="let achievement of player.achievements">
+                        <span *ngIf="achievement.gameId === scoreboardData?.gameId">
+                            {{ achievement.achievement.category }}
+                        </span>
+                    </ng-container>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

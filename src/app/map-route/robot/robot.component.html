@@ -1,0 +1,31 @@
+<div class="container">
+  <div class="player-list">
+    <h2>Players</h2>
+    <ul class="list-group">
+      <li class="list-group-item" *ngFor="let player of playerList" (click)="selectedPlayer = player.playerId">
+        {{ player.playerName }}
+        <span *ngIf="selectedPlayer === player.playerId" class="badge bg-primary float-end">
+          <i class="bi bi-chevron-down"></i>
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="robot-list" *ngIf="selectedPlayer">
+    <h2>Robots of {{ getPlayerName(selectedPlayer) }} ({{getRobotsForPlayer(selectedPlayer).length}})</h2>
+    <div class="robot-card" *ngFor="let robot of getRobotsForPlayer(selectedPlayer)">
+      <div class="card-header" (click)="selectedRobot = selectedRobot === robot.id ? null : robot.id">
+        Robot {{ robot.id }}
+        <img src="https://robohash.org/{{robot.id}}.png" alt="Robot Image" class="robot-img" style="width: 40px; height: 40px;">
+        <span *ngIf="selectedRobot === robot.id" class="badge bg-primary float-end">
+          <i class="bi bi-chevron-down"></i>
+        </span>
+      </div>
+      <div class="card-body" *ngIf="selectedRobot === robot.id">
+        <p>Health: {{ robot.health }}</p>
+        <p>Energy: {{ robot.energy }}</p>
+        <p>Planet: {{ robot.planet }}</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,13 @@
+<div *ngIf="game" class="game-container">
+    <h2>Game ID: {{game.gameId}}</h2>
+    <p>Status: {{game.gameStatus}}</p>
+    <p>Max Players: {{game.maxPlayers}}</p>
+    <p>Max Rounds: {{game.maxRounds}}</p>
+    <p>Current Round: {{game.currentRoundNumber}}</p>
+    <p>Round Length: {{game.roundLengthInMillis}} ms</p>
+    <p>Participating Players: {{game.participatingPlayers.join(', ')}}</p>
+</div>
+<div *ngIf="!game" class="game-container">
+    <h2>No game found</h2>
+    <p>Click the button below to create a new game</p>
+</div>

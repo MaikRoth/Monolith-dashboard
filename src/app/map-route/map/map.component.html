@@ -1,0 +1,31 @@
+<div>
+    Planets: {{ planetAmount }} <br>
+    Black Holes: {{ blackHoleAmount }} <br>
+</div>
+<div *ngIf="gridMap.length > 1" class="map-grid">
+    <div *ngFor="let row of gridMap; let y = index" class="map-row">
+        <div *ngFor="let cell of row; let x = index" class="map-cell">
+            <ng-container *ngIf="cell">
+                <div *ngIf="cell.resource?.resourceType">
+                    <div class="current-amount">{{formatNumber(cell.resource?.currentAmount)}}</div>
+                    <div class="resource-type">[{{cell.resource?.resourceType}}]</div>
+                </div>
+                <div *ngIf="cell.robots?.length > 0 && cell.robots?.length <= 4; else overFlow">
+                    <img *ngFor="let robot of cell.robots" [style.border-color]="assignColorToPlayer(robot.player)" src="https://robohash.org/{{robot.id}}.png" alt="Robot Image" class="robot-img">
+                </div>
+                <ng-template #overFlow>
+                    <div class="robot-overflow" *ngIf="cell.robots?.length > 4">
+                        <div [style.background]="getPlanetGradient(cell)" class="robot-overflow-amount">{{cell.robots?.length}}</div>
+                    </div>
+                </ng-template>
+            </ng-container>
+            <ng-container *ngIf="!cell">
+                <div class="black-hole"></div>
+            </ng-container>
+        </div>
+    </div>
+</div>
+<div *ngIf="gridMap.length < 2">
+    <h2>No map found</h2>
+    <p>Go to Controlpanel and create a game to see the map!</p>
+</div>
