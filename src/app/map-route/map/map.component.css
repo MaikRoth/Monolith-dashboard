@@ -62,7 +62,11 @@
 .map-cell span {
     position: absolute;
 }
-
+.planet {
+    width: 70px;
+    height: 70px;
+    border: 1px solid black;
+}
 .black-hole {
     width: 70px;
     height: 70px;

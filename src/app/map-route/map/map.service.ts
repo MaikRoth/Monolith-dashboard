@@ -24,7 +24,7 @@ export interface PlanetsMap {
 })
 export class MapService {
 
-  private apiUrl = 'http://localhost:4002/wholemap';
+  private apiUrl = 'http://localhost:4002/map';
 
   constructor(private http: HttpClient) { }
 

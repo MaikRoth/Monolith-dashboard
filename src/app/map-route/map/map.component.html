@@ -5,7 +5,7 @@
 <div *ngIf="gridMap.length > 1" class="map-grid">
     <div *ngFor="let row of gridMap; let y = index" class="map-row">
         <div *ngFor="let cell of row; let x = index" class="map-cell">
-            <ng-container *ngIf="cell">
+            <ng-container *ngIf="cell" >
                 <div *ngIf="cell.resource?.resourceType">
                     <div class="current-amount">{{formatNumber(cell.resource?.currentAmount)}}</div>
                     <div class="resource-type">[{{cell.resource?.resourceType}}]</div>
