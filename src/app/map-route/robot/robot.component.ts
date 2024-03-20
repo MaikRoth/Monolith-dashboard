@@ -24,16 +24,27 @@ export class RobotComponent implements OnInit {
   ngOnInit() {
     interval(5000).pipe(
       startWith(0), 
-      switchMap(() => this.scoreboardService.getScoreboardData()), 
+      switchMap(() => this.scoreboardService.getScoreboardData()),
     ).subscribe(data => {
       this.playerList = this.scoreboardService.getPlayerNamesWithIds(data);
+      
       this.robotService.getRobots(this.playerList).subscribe(robots => {
-        this.playerRobots = robots;
+        this.playerRobots = robots.reduce((acc, robot) => {
+          if (!acc[robot.playerId]) {
+            acc[robot.playerId] = { playerName: robot.playerName, robots: [] };
+          }
+          acc[robot.playerId].robots.push(robot);
+          return acc;
+        }, {});
+        console.log(this.playerRobots);
+        
       });
     });
   }
   getRobotsForPlayer(playerId: string) {
-    const playerObject = this.playerRobots.find(player => player.playerId === playerId);    
+    
+    const playerObject = this.playerRobots[playerId];
+    
     return playerObject ? playerObject.robots : []; 
   }
 } 

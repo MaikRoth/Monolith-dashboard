@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MapService } from './map.service';
+import { MapService, Planet } from './map.service';
 import { RobotService } from '../robot/robot.service';
 import { ScoreboardService } from '../scoreboard/scoreboard.service';
 import { timer, switchMap } from 'rxjs';
@@ -11,9 +11,9 @@ import { timer, switchMap } from 'rxjs';
 })
 export class MapComponent {
   gridMap: any[] = [];
-  planetAmount : number = 0;
-  blackHoleAmount : number = 0;
-  robotAmount : number = 0;
+  planetAmount: number = 0;
+  blackHoleAmount: number = 0;
+  robotAmount: number = 0;
   playerList: { playerId: string, playerName: string }[] = [];
   playerColorMap = new Map<string, string>();
   private colorIndex = 0;
@@ -29,14 +29,14 @@ export class MapComponent {
     timer(0, 5000).pipe(
       switchMap(() => this.mapService.getMapData())
     ).subscribe(data => {
-      this.processMapData(data[0].planetsMap);
+      this.processMapData(data[0].mapGrid.planets);
     });
     timer(0, 5000).pipe(
       switchMap(() => this.scoreboardService.getScoreboardData())
     ).subscribe(data => {
-      if (this.playerList.length === 0) {        
+      if (this.playerList.length === 0) {
         this.playerList = this.scoreboardService.getPlayerNamesWithIds(data);
-        this.playerList.forEach(player => {          
+        this.playerList.forEach(player => {
           this.assignColorToPlayer(player.playerId);
         });
         this.savePlayerColors();
@@ -68,7 +68,7 @@ export class MapComponent {
     });
     return blackHoleAmount;
   }
-  
+
   assignColorToPlayer(playerId: string): string {
     if (!this.playerColorMap.has(playerId)) {
       const color = this.getRandomColor();
@@ -83,7 +83,7 @@ export class MapComponent {
   }
 
   loadPlayerColors(): void {
-    const playerColors = JSON.parse(localStorage.getItem('playerColors'));    
+    const playerColors = JSON.parse(localStorage.getItem('playerColors'));
     if (playerColors) {
       this.playerColorMap = new Map(playerColors);
     }
@@ -95,84 +95,99 @@ export class MapComponent {
   }
   fetchRobots(): void {
     this.robotService.getRobots(this.playerList).subscribe(robotsData => {
-      robotsData.forEach(playerRobots => {
-        playerRobots.robots.forEach(robot => {
-          
-          if (robot.health <= 0) {
-            return;
-          }
-
-          let planet = null;
-          for (let row of this.gridMap) {
-            for (let p of row) {
-              if (p && p.id === robot.planet) {
-                planet = p;
+      if (Array.isArray(robotsData)) {
+        robotsData.forEach(robot => {
+          if (robot.alive && robot.health > 0) {
+            let planet = null;
+            for (let row of this.gridMap) {
+              for (let p of row) {
+                if (p && p.id === robot.planet) {
+                  planet = p;
+                  break;
+                }
+              }
+              if (planet) {
                 break;
               }
             }
+  
             if (planet) {
-              break;
+              if (!planet.robots) {
+                planet.robots = [];
+              }
+              
+              const existingRobot = planet.robots.find(r => r.id === robot.id);
+              if (!existingRobot) {
+                planet.robots.push(robot);
+              } else {
+                Object.assign(existingRobot, robot);
+              }
             }
-          }
-
-          if (planet) {
-            if (!planet.robots.some(r => r.id === robot.id)) {
-              planet.robots.push(robot);
-            }
-            planet.robots = planet.robots.filter(r => r.health > 0);
           }
         });
-      });
+      } else {
+        console.error('Erwartetes Array von Robotern, erhalten:', robotsData);
+      }
     });
   }
-  
-  processMapData(planetsMap: any): void {
-    const planets = Object.values(planetsMap);
 
-    let maxX = 0;
-    let maxY = 0;
-    planets.forEach((planet: any) => {
-      if (planet.x > maxX) {
-        maxX = planet.x;
-      }
-      if (planet.y > maxY) {
-        maxY = planet.y;
-      }
+  processMapData(planetsMap: { [key: string]: Planet }): void {
+    const planets = Object.entries(planetsMap).map(([key, planet]) => {
+      const coords = this.extractCoordinates(key);
+      return {
+        ...planet,
+        x: coords.x,
+        y: coords.y,
+      };
     });
+    
+    let maxX = Math.max(...planets.map(planet => planet.x));
+    let maxY = Math.max(...planets.map(planet => planet.y));
 
     const gridSizeX = maxX + 1;
     const gridSizeY = maxY + 1;
 
     this.gridMap = Array.from({ length: gridSizeY }, () =>
-      Array.from({ length: gridSizeX }, () => null));
-
-    planets.forEach((planet: any) => {
-      if (planet.x < gridSizeX && planet.y < gridSizeY) {
-        this.gridMap[planet.x][planet.y] = planet;
-      }
+    Array.from({ length: gridSizeX }, () => null));
+    
+    planets.forEach(planet => {
+      this.gridMap[planet.y][planet.x] = planet;
     });
     this.planetAmount = this.countPlanets();
     this.blackHoleAmount = this.countBlackHoles();
+
+  }
+  extractCoordinates(key: string): { x: number, y: number } {
+    const match = key.match(/Coordinates\(x=(\d+), y=(\d+)\)/);
+
+    if (match && match.length >= 3) {
+      return {
+        x: parseInt(match[1], 10),
+        y: parseInt(match[2], 10)
+      };
+    } else {
+      return { x: 0, y: 0 };
+    }
   }
   getPlanetGradient(planet): string {
     const totalRobots = planet.robots.length;
     const playerRobotCounts = new Map();
-  
+
     planet.robots.forEach(robot => {
       const count = playerRobotCounts.get(robot.player) || 0;
       playerRobotCounts.set(robot.player, count + 1);
     });
-  
+
     const colorStops = [];
     let currentStop = 0;
-  
+
     playerRobotCounts.forEach((count, playerId) => {
       const color = this.playerColorMap.get(playerId);
       const stop = currentStop + (count / totalRobots) * 100;
       colorStops.push(`${color} ${currentStop}% ${stop}%`);
       currentStop = stop;
     });
-  
+
     return `linear-gradient(to right, ${colorStops.join(', ')})`;
   }
   formatNumber(amount: number): string {

@@ -6,9 +6,9 @@
     <div *ngFor="let row of gridMap; let y = index" class="map-row">
         <div *ngFor="let cell of row; let x = index" class="map-cell">
             <ng-container *ngIf="cell" >
-                <div *ngIf="cell.resource?.resourceType">
+                <div *ngIf="cell.resource?.type">
                     <div class="current-amount">{{formatNumber(cell.resource?.currentAmount)}}</div>
-                    <div class="resource-type">[{{cell.resource?.resourceType}}]</div>
+                    <div class="resource-type">[{{cell.resource?.type}}]</div>
                 </div>
                 <div *ngIf="cell.robots?.length > 0 && cell.robots?.length <= 4; else overFlow">
                     <img *ngFor="let robot of cell.robots" [style.border-color]="assignColorToPlayer(robot.player)" src="https://robohash.org/{{robot.id}}.png" alt="Robot Image" class="robot-img">
